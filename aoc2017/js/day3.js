@@ -114,7 +114,7 @@
       field.writeable = false;
       field = memory[index];
 
-      console.log(i, JSON.parse(JSON.stringify(memory)), JSON.parse(JSON.stringify(movements)))
+      //console.log(i, JSON.parse(JSON.stringify(memory)), JSON.parse(JSON.stringify(movements)))
 
       // Look for solution
 
