@@ -1,1 +1,167 @@
-Hello World
+<html>
+<head>
+  <title>Advent Of Code</title>
+  
+  <script src="lib/jquery-3.2.1.js"></script>
+  <script src="lib/underscore-1.8.3.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify-css.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.4/beautify-html.js"></script>
+
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+  <script src="js/day1.js"></script>
+
+  <style>
+    body::after {
+      background-image: url('static/img/snowflake.png');
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-position: center;
+      background-size: contain;
+      background-color: rgb(41, 162, 251);
+      content: "";
+      opacity: 0.15;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      z-index: -1;   
+    }
+
+    #input, #output, #debug {
+      margin: 10 20 10 20;
+    }
+
+    #sDays, #sParts, #run, #def {
+      margin: 10 5 10 5;
+    }
+
+    #sDays {
+      margin-left: 20;
+    }
+
+    #input {
+      width: 50%; height: 30%; background-color: rgba(0, 0, 0, 0);
+    }
+
+    #output {
+      width: 50%; height: 30%; word-break: break-all;
+    }
+
+    #debug {
+      width: 100%; white-space: pre; background: initial;
+    }
+  </style>
+</head>
+<body>
+  <select id="sDays"></select>
+
+  <select id="sParts">
+    <option value="0">A</option>
+    <option value="1">B</option>
+  </select>
+
+  <button id="run">Run!</button>  
+  <button id="def">Default</button>
+
+  <div style="display:flex;">
+    <textarea id="input"></textarea>
+    <div id="output"></div>
+  </div>
+  
+  <pre><code id="debug"></code></pre>
+</body>
+</html>
+
+<script>
+  let state;
+
+  $(document).ready(function() {    
+    state = JSON.parse(localStorage.getItem('state') || JSON.stringify({ currentDay: 1, currentPart: 0, inputs: [] }));
+    console.log(state);
+
+    // Fill the days select
+    for(let i=0; i<25; i++) {
+      $('#sDays').append($('<option>', {
+          value: i+1,
+          text: 'Day ' + (i + 1)
+      }));
+    }
+
+    let currentDefInput = window.aoc[state.currentDay][0];
+    $("#input").text(state.inputs[state.currentDay] || currentDefInput);
+    $("#run").click();
+
+    // Set the selects to the proper value
+    $("#sDays").val(state.currentDay.toString()).change();
+    $("#sParts").val(state.currentPart.toString()).change();
+  });
+
+  $("#sDays").change((evt) => {
+    let option = $(evt.target).find("option:selected");
+    let value = option.val();
+    state.currentDay = parseInt(value);
+  });
+
+  $("#sParts").change((evt) => {
+    let option = $(evt.target).find("option:selected");
+    let value = option.val();
+    state.currentPart = parseInt(value);
+  });
+
+  $("#def").click(() => {
+    $("#input").text(window.aoc[state.currentDay][0]);
+    state.inputs[state.currentDay] = "";
+    save();
+  })
+
+  $("#run").click(() => {
+    let input = $("#input").val();
+    let output = "";
+
+    console.log("Running:", "Day", state.currentDay, "Part", state.currentPart === 0 ? "A" : "B");
+    
+    if(!window.aoc[state.currentDay]) {
+      $("#debug").html("No program found");
+      return;
+    }
+
+    if(state.currentPart === 0) {
+      output = window.aoc[state.currentDay][1](input);
+    }else{
+      output = window.aoc[state.currentDay][2](input);
+    }
+
+    $("#output").html(output);
+    if(input !== window.aoc[state.currentDay][0]) state.inputs[state.currentDay] = input;
+    save();
+
+    /* Display the code */
+    $.get( "js/day" + state.currentDay + ".js", function(jsStr) {
+      let re = /^.*$/
+      if(state.currentPart === 0) {
+        re = /^.*\/\* FN1 START \*\/(.*)\/\* FN1 END \*\/.*$/gs
+      }else{
+        re = /^.*\/\* FN2 START \*\/(.*)\/\* FN2 END \*\/.*$/gs
+      }
+      var match = re.exec(jsStr);
+      
+      if(match && match.length > 1) {
+        $("#debug").html(js_beautify(match[1].trim(), {indent_size: 2}));
+        $('pre code').each(function(i, block) {
+          hljs.highlightBlock(block);
+        });
+      }else{
+        $("#debug").html("");
+      }
+    });
+  })
+
+  function save() {
+    localStorage.setItem('state', JSON.stringify(state));
+  }
+</script>
