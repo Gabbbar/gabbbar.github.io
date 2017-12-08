@@ -31,7 +31,7 @@
       let pairIndex = (i + input.length/2) % input.length;
       let pairValue = parseInt(input[pairIndex])
 
-      console.log("Current", currentIndex, currentValue, "Pair", pairIndex, pairValue);
+      //console.log("Current", currentIndex, currentValue, "Pair", pairIndex, pairValue);
 
       if(currentValue === pairValue) {
         output += currentValue;

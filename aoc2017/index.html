@@ -115,12 +115,12 @@
       }
     }
 
-    showInput();
-    $("#run").click();
-
     // Set the selects to the proper value
     $("#sDays").val(state.currentDay.toString()).change();
     $("#sParts").val(state.currentPart.toString()).change();
+    
+    // Run the code
+    $("#run").click();
   });
 
   $("#sDays").change((evt) => {
@@ -128,6 +128,7 @@
     let value = option.val();
     state.currentDay = parseInt(value);
 
+    save();
     showCode(); 
     showInput();
     $("#output").html("");
@@ -138,6 +139,7 @@
     let value = option.val();
     state.currentPart = parseInt(value);
 
+    save();
     showCode(); 
     showInput(); 
     $("#output").html("");
