@@ -13,9 +13,10 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 
   <script src="js/day1.js"></script>
+  <script src="js/day2.js"></script>
 
   <style>
-    body::after {
+    #snowflake {
       background-image: url('static/img/snowflake.png');
       background-repeat: no-repeat;
       background-attachment: fixed;
@@ -24,6 +25,23 @@
       background-color: rgb(41, 162, 251);
       content: "";
       opacity: 0.15;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      z-index: -1;   
+    }
+
+    #holly {
+      background-image: url('static/img/holly.png');
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-position-x: right;
+      background-size: 300px;
+      background-color: rgba(0, 0, 0, 0);
+      content: "";
+      opacity: 0.35;
       position: absolute;
       top: 0;
       bottom: 0;
@@ -58,6 +76,9 @@
   </style>
 </head>
 <body>
+  <div id="snowflake"></div>
+  <div id="holly"></div>
+
   <select id="sDays"></select>
 
   <select id="sParts">
@@ -86,14 +107,15 @@
 
     // Fill the days select
     for(let i=0; i<25; i++) {
-      $('#sDays').append($('<option>', {
-          value: i+1,
-          text: 'Day ' + (i + 1)
-      }));
+      if(window.aoc[i]) {
+        $('#sDays').append($('<option>', {
+            value: i,
+            text: 'Day ' + i
+        }));
+      }
     }
 
-    let currentDefInput = window.aoc[state.currentDay][0];
-    $("#input").text(state.inputs[state.currentDay] || currentDefInput);
+    showInput();
     $("#run").click();
 
     // Set the selects to the proper value
@@ -105,17 +127,26 @@
     let option = $(evt.target).find("option:selected");
     let value = option.val();
     state.currentDay = parseInt(value);
+
+    showCode(); 
+    showInput();
+    $("#output").html("");
   });
 
   $("#sParts").change((evt) => {
     let option = $(evt.target).find("option:selected");
     let value = option.val();
     state.currentPart = parseInt(value);
+
+    showCode(); 
+    showInput(); 
+    $("#output").html("");
   });
 
   $("#def").click(() => {
     $("#input").text(window.aoc[state.currentDay][0]);
     state.inputs[state.currentDay] = "";
+
     save();
   })
 
@@ -139,8 +170,14 @@
     $("#output").html(output);
     if(input !== window.aoc[state.currentDay][0]) state.inputs[state.currentDay] = input;
     save();
+    showCode();   
+  });
 
-    /* Display the code */
+  function showInput() {
+    $("#input").text(state.inputs[state.currentDay] || window.aoc[state.currentDay][0]);
+  }
+
+  function showCode() {
     $.get( "js/day" + state.currentDay + ".js", function(jsStr) {
       let re = /^.*$/
       if(state.currentPart === 0) {
@@ -159,7 +196,7 @@
         $("#debug").html("");
       }
     });
-  })
+  }
 
   function save() {
     localStorage.setItem('state', JSON.stringify(state));
